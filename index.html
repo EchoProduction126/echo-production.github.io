@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo Production | Independent Roblox Game Studio</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #12141c;
+            --bg-card: rgba(18, 20, 28, 0.95);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --accent-red: #ff2a5f;
+            --accent-purple: #7928ca;
+            --accent-cyan: #00dfd8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes rainbowBorder {
+            0% { border-color: var(--accent-red); }
+            33% { border-color: var(--accent-purple); }
+            66% { border-color: var(--accent-cyan); }
+            100% { border-color: var(--accent-red); }
+        }
+
+        @keyframes rainbowGradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .rainbow-title {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple), var(--accent-cyan), var(--accent-red));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbowGradientText 4s ease infinite;
+            will-change: background-position;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+        .glow-1 { top: -100px; left: -100px; background: var(--accent-red); }
+        .glow-2 { bottom: -100px; right: -100px; background: var(--accent-cyan); }
+        .glow-3 { top: 40%; left: 30%; background: var(--accent-purple); }
+
+        #gateway-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 6, 9, 0.98);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .gateway-card {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-purple);
+            border-radius: 24px;
+            padding: 35px 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+            animation: rainbowBorder 6s infinite linear;
+            will-change: border-color;
+        }
+
+        .gateway-logo {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-text-box {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .gateway-logo p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 40px 12px 14px;
+            background: #090a0f;
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-control.no-icon {
+            padding-right: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            background: #0e111a;
+        }
+
+        .password-eye-btn {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .password-eye-btn:hover { color: var(--accent-cyan); }
+
+        .robot-check-box {
+            display: flex;
+            align-items: center;
+            background: #090a0f;
+            border: 1px solid var(--border-glass);
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 18px;
+        }
+
+        .robot-check-box input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-cyan);
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple), var(--accent-cyan));
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            animation: rainbowGradientText 4s ease infinite;
+        }
+        .btn-primary:hover { filter: brightness(1.1); }
+
+        .create-acc-bottom-right {
+            position: absolute;
+            right: 0;
+            bottom: -20px;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .create-acc-bottom-right:hover { text-decoration: underline; }
+
+        .gateway-footer-note {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-glass);
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-rect-blue {
+            background: linear-gradient(135deg, #2563eb, var(--accent-cyan));
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #main-website {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background: rgba(10, 11, 16, 0.95);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .nav-logo-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-discord-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #5865F2;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+
+        .hamburger-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #12141c;
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-drawer {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-glass);
+            z-index: 2500;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+        }
+        .menu-drawer.active { right: 0; }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 15px;
+        }
+
+        .drawer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .drawer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .drawer-links a:hover { color: var(--accent-cyan); }
+
+        .hero {
+            padding: 150px 5% 50px 5%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 550px;
+            margin-bottom: 25px;
+        }
+
+        .bug-spotlight-section {
+            padding: 0 5% 50px 5%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .bug-spotlight-card, .contact-spotlight-card {
+            flex: 1;
+            min-width: 280px;
+            max-width: 450px;
+            background: var(--bg-card);
+            border: 2px solid rgba(255, 42, 95, 0.4);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: rainbowBorder 8s infinite linear;
+        }
+        .contact-spotlight-card {
+            border-color: rgba(0, 223, 216, 0.4);
+        }
+
+        .btn-report-action {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-panel {
+            display: none;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 90px auto 25px auto;
+            max-width: 1000px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 12px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th, .admin-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.85rem;
+        }
+        .admin-table th { color: var(--accent-cyan); background: rgba(255, 255, 255, 0.02); }
+        .admin-table td { color: var(--text-muted); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 6, 9, 0.9);
+            z-index: 30000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent-purple);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 30px;
+            position: relative;
+            animation: rainbowBorder 6s infinite linear;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .modal-close-btn:hover { background: var(--accent-red); }
+
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-glass);
+            padding: 25px 5%;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .action-btn-sm {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-approve { background: #10b981; color: white; }
+        .btn-reject { background: #ef4444; color: white; }
+
+        .dev-badge-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00dfd8, #7928ca);
+            color: #fff;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .bug-log-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 10px;
+        }
+        .bug-tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .bug-tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #fff;
+            border-color: var(--accent-cyan);
+        }
+
+        .rainbow-file-upload {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed var(--accent-cyan);
+            border-radius: 12px;
+            padding: 14px 18px;
+            cursor: pointer;
+            animation: rainbowBorder 6s infinite linear;
+        }
+        .rainbow-file-upload input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 5;
+        }
+        .rainbow-file-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            pointer-events: none;
+        }
+        .rainbow-file-icon {
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+        .rainbow-file-text-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+        .rainbow-file-text {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rainbow-file-subtext {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .rainbow-file-action-badge {
+            margin-left: auto;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-purple));
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- Gateway Screen -->
+    <div id="gateway-screen">
+        <div class="gateway-card">
+            <div class="gateway-logo">
+                <div class="logo-text-box rainbow-title">Echo Production</div>
+                <p>Independent Roblox Game Studio Gateway</p>
+            </div>
+            
+            <form id="gateway-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username (Max 12 chars)</label>
+                    <input type="text" id="gw-user" class="form-control no-icon" required maxlength="12" placeholder="Enter username...">
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Password (Unlimited characters)</label>
+                    <input type="password" id="gw-pass" class="form-control" required placeholder="Enter password...">
+                    <button type="button" class="password-eye-btn" id="eye-btn" onclick="togglePasswordVisibility()"><i class="fa-solid fa-eye"></i></button>
+                    <a class="create-acc-bottom-right rainbow-title" onclick="triggerCreateAccountFromBottom(event)">Create Account</a>
+                </div>
+
+                <div class="robot-check-box" id="robot-container" style="margin-top: 25px;">
+                    <input type="checkbox" id="robot-check" required>
+                    <span style="font-weight: 600; font-size: 0.9rem; cursor: pointer;">I am not a robot</span>
+                </div>
+
+                <button type="submit" class="btn-primary">Log In</button>
+            </form>
+
+            <div class="gateway-footer-note">
+                <span>Forgot password or need an account? Use the Contact Us button below (available directly, no login required):</span>
+                <button type="button" class="btn-rect-blue" onclick="openModal('contact-modal')">
+                    <i class="fa-solid fa-envelope"></i> Contact Us
+                </button>
+                <span style="font-size: 0.7rem; color: var(--text-muted);">echoproduction12236@gmail.com</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Website Wrapper -->
+    <div id="main-website">
+
+        <nav class="navbar">
+            <a href="#" class="nav-logo" id="nav-logo-container">
+                <div class="nav-logo-text rainbow-title" id="nav-logo-text">Echo Production</div>
+            </a>
+
+            <div class="nav-actions">
+                <a id="nav-discord-link" href="https://discord.gg/ntgvguEZXG" target="_blank" class="btn-discord-icon" title="Discord Server">
+                    <i class="fa-brands fa-discord"></i>
+                </a>
+                <button class="hamburger-btn" onclick="toggleMenuDrawer()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+
+        <div class="menu-drawer" id="menu-drawer">
+            <div class="drawer-header">
+                <h3 class="rainbow-title">Navigation Menu</h3>
+                <button class="modal-close-btn" style="position:static;" onclick="toggleMenuDrawer()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <ul class="drawer-links">
+                <li><a onclick="toggleMenuDrawer(); openModal('about-modal');"><i class="fa-solid fa-circle-info"></i> About Us</a></li>
+                <li><a onclick="toggleMenuDrawer(); openModal('projects-modal');"><i class="fa-solid fa-gamepad"></i> Coming Soon / Projects</a></li>
+                <li><a onclick="toggleMenuDrawer(); openModal('team-modal');"><i class="fa-solid fa-users"></i> Our Team</a></li>
+                <li><a onclick="toggleMenuDrawer(); openModal('bug-log-modal');"><i class="fa-solid fa-bug"></i> Bug Log (View All)</a></li>
+                <li><a onclick="toggleMenuDrawer(); openModal('contact-modal');"><i class="fa-solid fa-envelope"></i> Contact Us</a></li>
+                <li><a onclick="logoutSession()" style="color:var(--accent-red);"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+            </ul>
+        </div>
+
+        <div id="admin-dashboard" class="admin-panel">
+            <div class="admin-header">
+                <h2 class="rainbow-title"><i class="fa-solid fa-code"></i> Developer Control Panel</h2>
+                <button class="action-btn-sm btn-reject" onclick="logoutSession()">Log Out</button>
+            </div>
+            <div class="admin-content-box" id="admin-tab-content"></div>
+        </div>
+
+        <header class="hero">
+            <h1 class="rainbow-title">Echo Production Excellence</h1>
+            <p>Building original, premium, and immersive Roblox experiences with futuristic standards.</p>
+        </header>
+
+        <section class="bug-spotlight-section">
+            <div class="bug-spotlight-card">
+                <div>
+                    <h3 class="rainbow-title" style="font-size:1.1rem; margin-bottom:4px;">Report a Bug</h3>
+                    <p style="color:var(--text-muted); font-size:0.8rem;">Found an issue? Submit your bug report here.</p>
+                </div>
+                <button class="btn-report-action" onclick="openModal('bug-report-modal')">
+                    <i class="fa-solid fa-bug"></i> Report Bug
+                </button>
+            </div>
+
+            <div class="contact-spotlight-card">
+                <div>
+                    <h3 class="rainbow-title" style="font-size:1.1rem; margin-bottom:4px;">Need to reach support?</h3>
+                    <p style="color:var(--text-muted); font-size:0.8rem;">Send a direct message via the Contact Us form.</p>
+                </div>
+                <button type="button" class="btn-rect-blue" onclick="openModal('contact-modal')">
+                    <i class="fa-solid fa-envelope"></i> Contact Us
+                </button>
+            </div>
+        </section>
+
+        <footer>
+            Echo Production © 2026. All rights reserved.
+        </footer>
+
+    </div>
+
+    <!-- Modals Section -->
+
+    <div id="about-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('about-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:10px;">About Us</h2>
+            <p style="color:var(--text-muted); line-height:1.5; font-size:0.9rem;">An independent studio dedicated to creating original games on the Roblox platform with AAA-standard gameplay and mechanics.</p>
+        </div>
+    </div>
+
+    <div id="projects-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('projects-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:10px;">Coming Soon</h2>
+            <p style="color:var(--text-muted); line-height:1.5; font-size:0.9rem;">Our exciting dynamic projects are currently in development. Stay tuned for updates!</p>
+        </div>
+    </div>
+
+    <div id="team-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('team-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:10px;">Our Team</h2>
+            <div style="color:var(--text-muted); line-height:1.5; font-size:0.9rem;">
+                <p class="rainbow-title" style="font-style: italic; font-weight: 700;">Coming Soon - Team members will be announced shortly!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Bug Modal -->
+    <div id="bug-report-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('bug-report-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:4px;"><i class="fa-solid fa-bug"></i> Submit a Bug Report</h2>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px;">Please provide clear details so our developers can investigate the issue.</p>
+            
+            <form id="bug-report-form" onsubmit="submitNewBugReport(event)">
+                <div class="form-group">
+                    <label>Title / Game Details</label>
+                    <input type="text" id="new-bug-title" class="form-control no-icon" required placeholder="Ex: Glitch in main map...">
+                </div>
+                <div class="form-group">
+                    <label>Full Description</label>
+                    <textarea id="new-bug-desc" class="form-control no-icon" rows="3" required placeholder="Describe how to reproduce the bug..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Attach Image (Screenshot)</label>
+                    <div class="rainbow-file-upload">
+                        <input type="file" id="new-bug-image" accept="image/*" onchange="updateRainbowFileName(this)">
+                        <div class="rainbow-file-content">
+                            <div class="rainbow-file-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <div class="rainbow-file-text-wrap">
+                                <div class="rainbow-file-text" id="rainbow-file-label">Choose image file...</div>
+                                <div class="rainbow-file-subtext">PNG, JPG, WEBP up to 10MB</div>
+                            </div>
+                            <div class="rainbow-file-action-badge">Browse</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" id="submit-bug-btn" style="margin-top:10px;">Submit Bug Report</button>
+                <span id="bug-cooldown-notice" style="font-size: 0.75rem; color: var(--accent-red); margin-top: 8px; display: block;"></span>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bug Log Modal -->
+    <div id="bug-log-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('bug-log-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:4px;"><i class="fa-solid fa-clipboard-list"></i> Bug Log & Bug Reviewed</h2>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">Active reports accept votes and comments. Accepted reports move to Bug Reviewed (read-only).</p>
+            
+            <div class="bug-log-tabs">
+                <button class="bug-tab-btn active" id="tab-btn-log" onclick="switchBugModalTab('log')"><i class="fa-solid fa-bug"></i> Bug Log (Active)</button>
+                <button class="bug-tab-btn" id="tab-btn-reviewed" onclick="switchBugModalTab('reviewed')"><i class="fa-solid fa-circle-check"></i> Bug Reviewed</button>
+            </div>
+
+            <!-- Tab 1: Bug Log Active -->
+            <div id="bug-modal-tab-log" style="display:flex; flex-direction:column; gap:12px;">
+                <div id="public-bugs-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+
+            <!-- Tab 2: Bug Reviewed -->
+            <div id="bug-modal-tab-reviewed" style="display:none; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:4px;">
+                    <button class="action-btn-sm btn-reject" onclick="wipeReviewedBugsFromModal()"><i class="fa-solid fa-trash"></i> Wipe Bug Reviewed</button>
+                </div>
+                <div id="reviewed-bugs-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Us Modal Embed -->
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close-btn" onclick="closeModal('contact-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="rainbow-title" style="font-size:1.4rem; margin-bottom:4px;"><i class="fa-solid fa-envelope"></i> Contact Us Support</h2>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:12px;">Official Gmail: <strong class="rainbow-title">echoproduction12236@gmail.com</strong></p>
+            
+            <div style="background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                <strong style="color:#fff;"><i class="fa-solid fa-circle-info"></i> Forgot password or need an account?</strong><br>
+                Use this contact form anytime, even if you are logged out or lost your credentials. A developer will review your request.
+            </div>
+
+            <form onsubmit="submitContactUsForm(event)">
+                <div class="form-group">
+                    <label>Your Email Address</label>
+                    <input type="email" id="contact-email" class="form-control no-icon" required placeholder="name@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Account Name(s)</label>
+                    <input type="text" id="contact-accounts" class="form-control no-icon" required placeholder="Your account name...">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="contact-desc" class="form-control no-icon" rows="3" required placeholder="Detail your issue..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" id="submit-contact-btn" style="margin-top:10px;">Submit Contact Request</button>
+                <span id="contact-cooldown-notice" style="font-size: 0.75rem; color: var(--accent-red); margin-top: 8px; display: block;"></span>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript System Logic -->
+    <script>
+        let db = JSON.parse(localStorage.getItem('echo_studio_db_v26')) || {
+            devPassword: "echodeveloper129234",
+            developers: ["develop", "fabianst"],
+            usersLog: [], 
+            bugReports: [],
+            contactInquiries: [], 
+            bans: [],
+            deviceAccounts: {}
+        };
+
+        function saveDB() {
+            localStorage.setItem('echo_studio_db_v26', JSON.stringify(db));
+        }
+
+        const COOLDOWN_DURATION_MS = 60 * 60 * 1000;
+        const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const robotContainer = document.getElementById('robot-container');
+            const robotCheckbox = document.getElementById('robot-check');
+            if (robotContainer && robotCheckbox) {
+                robotContainer.addEventListener('click', (e) => {
+                    if (e.target !== robotCheckbox) robotCheckbox.checked = !robotCheckbox.checked;
+                });
+            }
+
+            // Verificare sesiune 3 zile (Auto-login)
+            checkActiveSession();
+
+            renderPublicBugs();
+            renderReviewedBugs();
+        });
+
+        function checkActiveSession() {
+            const savedUser = localStorage.getItem('echo_active_user');
+            const savedPass = localStorage.getItem('echo_active_pass');
+            const loginTimestamp = localStorage.getItem('echo_login_time');
+
+            if (savedUser && savedPass && loginTimestamp) {
+                const now = Date.now();
+                if (now - parseInt(loginTimestamp) < THREE_DAYS_MS) {
+                    // Sesiunea este validă (sub 3 zile), intrăm automat
+                    enterWebsite(savedUser, savedPass, true);
+                } else {
+                    // Expirat după 3 zile
+                    localStorage.removeItem('echo_active_user');
+                    localStorage.removeItem('echo_active_pass');
+                    localStorage.removeItem('echo_login_time');
+                }
+            }
+        }
+
+        function toggleMenuDrawer() {
+            document.getElementById('menu-drawer').classList.toggle('active');
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('gw-pass');
+            const eyeBtn = document.getElementById('eye-btn');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+            } else {
+                passInput.type = 'password';
+                eyeBtn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+            }
+        }
+
+        function triggerCreateAccountFromBottom(e) {
+            e.preventDefault();
+            const user = document.getElementById('gw-user').value.trim();
+            const pass = document.getElementById('gw-pass').value;
+
+            if (!user || !pass) {
+                alert('Please enter both a username and password before creating an account.');
+                return;
+            }
+
+            if (user.length > 12) {
+                alert('Username must be maximum 12 characters long!');
+                return;
+            }
+
+            if (db.bans.includes(user.toLowerCase())) {
+                alert('Access Denied: Blocked user.');
+                return;
+            }
+
+            const existingUserLog = db.usersLog.find(u => u.username.toLowerCase() === user.toLowerCase());
+            if (existingUserLog) {
+                alert('This username already exists! Choose another username.');
+                return;
+            }
+
+            // Limitare maximum 2 conturi per dispozitiv
+            let deviceId = localStorage.getItem('echo_device_identifier');
+            if (!deviceId) {
+                deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem('echo_device_identifier', deviceId);
+            }
+
+            if (!db.deviceAccounts) db.deviceAccounts = {};
+            if (!db.deviceAccounts[deviceId]) db.deviceAccounts[deviceId] = [];
+
+            if (db.deviceAccounts[deviceId].length >= 2) {
+                alert('Maximum limit of 2 accounts per device reached! Please use the Contact Us button if you need support.');
+                return;
+            }
+
+            db.usersLog.push({ username: user, password: pass, date: new Date().toLocaleString() });
+            db.deviceAccounts[deviceId].push(user.toLowerCase());
+            saveDB();
+
+            alert('Account successfully created! Logging you in automatically...');
+            enterWebsite(user, pass, false);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('gw-user').value.trim();
+            const pass = document.getElementById('gw-pass').value;
+
+            if (user.length > 12) {
+                alert('Username cannot exceed 12 characters!');
+                return;
+            }
+
+            if (db.bans.includes(user.toLowerCase())) {
+                alert('Access Denied: Blocked user.');
+                return;
+            }
+
+            const isDev = db.developers.includes(user.toLowerCase()) || pass === db.devPassword;
+            const existingUserLog = db.usersLog.find(u => u.username.toLowerCase() === user.toLowerCase());
+
+            if (!isDev && (!existingUserLog || existingUserLog.password !== pass)) {
+                alert('Incorrect username or password, or account does not exist. Click "Create Account" if you are new.');
+                return;
+            }
+
+            enterWebsite(user, pass, false);
+        }
+
+        let currentLoggedInUser = '';
+        let isUserDeveloper = false;
+
+        function enterWebsite(username, pass, isAutoLogin) {
+            currentLoggedInUser = username;
+            isUserDeveloper = db.developers.includes(username.toLowerCase()) || pass === db.devPassword;
+
+            // Salvăm sesiunea pe 3 zile
+            localStorage.setItem('echo_active_user', username);
+            localStorage.setItem('echo_active_pass', pass);
+            if (!isAutoLogin || !localStorage.getItem('echo_login_time')) {
+                localStorage.setItem('echo_login_time', Date.now().toString());
+            }
+
+            document.getElementById('gateway-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('gateway-screen').style.display = 'none';
+                const web = document.getElementById('main-website');
+                web.style.display = 'block';
+                setTimeout(() => web.style.opacity = '1', 200);
+            }, 250);
+
+            if (isUserDeveloper) {
+                const logoContainer = document.getElementById('nav-logo-container');
+                if (!document.getElementById('dev-emblem-icon')) {
+                    const iconBadge = document.createElement('span');
+                    iconBadge.id = 'dev-emblem-icon';
+                    iconBadge.className = 'dev-badge-icon';
+                    iconBadge.title = 'Verified Studio Developer';
+                    iconBadge.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+                    logoContainer.appendChild(iconBadge);
+                }
+                document.getElementById('admin-dashboard').style.display = 'block';
+                renderDeveloperPanel();
+            }
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('active');
+                if (id === 'bug-log-modal') {
+                    renderPublicBugs();
+                    renderReviewedBugs();
+                }
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('active');
+        }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        }
+
+        function switchBugModalTab(tabName) {
+            const btnLog = document.getElementById('tab-btn-log');
+            const btnRev = document.getElementById('tab-btn-reviewed');
+            const contentLog = document.getElementById('bug-modal-tab-log');
+            const contentRev = document.getElementById('bug-modal-tab-reviewed');
+
+            if (tabName === 'log') {
+                btnLog.classList.add('active');
+                btnRev.classList.remove('active');
+                contentLog.style.display = 'flex';
+                contentRev.style.display = 'none';
+            } else {
+                btnRev.classList.add('active');
+                btnLog.classList.remove('active');
+                contentRev.style.display = 'flex';
+                contentLog.style.display = 'none';
+            }
+        }
+
+        function updateRainbowFileName(input) {
+            const label = document.getElementById('rainbow-file-label');
+            if (input.files && input.files[0]) {
+                label.textContent = input.files[0].name;
+            } else {
+                label.textContent = 'Choose image file...';
+            }
+        }
+
+        function submitNewBugReport(e) {
+            e.preventDefault();
+            if (!currentLoggedInUser) {
+                alert('You must be logged in to report a bug!');
+                return;
+            }
+
+            if (!db.bugCooldowns) db.bugCooldowns = {};
+            const lastTime = db.bugCooldowns[currentLoggedInUser] || 0;
+            const now = Date.now();
+            const elapsed = now - lastTime;
+
+            if (elapsed < COOLDOWN_DURATION_MS) {
+                const remainingMinutes = Math.ceil((COOLDOWN_DURATION_MS - elapsed) / (60 * 1000));
+                document.getElementById('bug-cooldown-notice').innerText = `Cooldown active! Please wait ${remainingMinutes} minute(s) before submitting another bug report.`;
+                return;
+            }
+
+            const title = document.getElementById('new-bug-title').value.trim();
+            const desc = document.getElementById('new-bug-desc').value.trim();
+            const imageInput = document.getElementById('new-bug-image');
+
+            if (imageInput.files && imageInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    saveBugWithImage(title, desc, uploadEvent.target.result);
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                saveBugWithImage(title, desc, null);
+            }
+        }
+
+        function saveBugWithImage(title, desc, imageUrl) {
+            if (!db.bugReports) db.bugReports = [];
+            
+            db.bugReports.push({
+                id: Date.now(),
+                author: currentLoggedInUser,
+                title,
+                desc,
+                image: imageUrl,
+                status: 'Pending',
+                votesUp: [],
+                comments: [],
+                date: new Date().toLocaleString()
+            });
+
+            db.bugCooldowns[currentLoggedInUser] = Date.now();
+            saveDB();
+            document.getElementById('bug-cooldown-notice').innerText = '';
+            alert('Bug report submitted successfully!');
+            document.getElementById('bug-report-form').reset();
+            document.getElementById('rainbow-file-label').textContent = 'Choose image file...';
+            closeModal('bug-report-modal');
+            renderPublicBugs();
+        }
+
+        function voteBugOnce(bugId) {
+            if (!currentLoggedInUser) {
+                alert('You must be logged in to vote!');
+                return;
+            }
+            const bug = db.bugReports.find(b => b.id === bugId);
+            if (!bug || bug.status === 'Accepted') return;
+
+            if (!bug.votesUp) bug.votesUp = [];
+            if (bug.votesUp.includes(currentLoggedInUser)) {
+                alert('You have already voted for this bug!');
+                return;
+            }
+
+            bug.votesUp.push(currentLoggedInUser);
+            saveDB();
+            renderPublicBugs();
+        }
+
+        function submitBugComment(e, bugId) {
+            e.preventDefault();
+            if (!currentLoggedInUser) {
+                alert('You must be logged in to comment!');
+                return;
+            }
+            const bug = db.bugReports.find(b => b.id === bugId);
+            if (!bug || bug.status === 'Accepted') return;
+
+            const inputField = document.getElementById(`comment-input-${bugId}`);
+            const commentText = inputField.value.trim();
+            if (!commentText) return;
+
+            if (!bug.comments) bug.comments = [];
+            bug.comments.push({
+                author: currentLoggedInUser,
+                text: commentText,
+                date: new Date().toLocaleString()
+            });
+
+            saveDB();
+            renderPublicBugs();
+        }
+
+        function renderPublicBugs() {
+            const container = document.getElementById('public-bugs-container');
+            if (!container) return;
+
+            const activeBugs = (db.bugReports || []).filter(b => b.status !== 'Accepted');
+            if (activeBugs.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">No active bug reports in the bug log.</p>`;
+                return;
+            }
+
+            let html = '';
+            activeBugs.forEach(bug => {
+                const hasVoted = bug.votesUp && bug.votesUp.includes(currentLoggedInUser);
+                const voteCount = bug.votesUp ? bug.votesUp.length : 0;
+
+                html += `
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 10px; padding: 14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                            <div>
+                                <h5 style="color:#fff; font-size:0.95rem; margin-bottom:2px;">${bug.title}</h5>
+                                <span style="font-size:0.7rem; color:var(--text-muted);">Reported by: <strong class="rainbow-title">${bug.author}</strong> at ${bug.date}</span>
+                            </div>
+                            <span style="font-size:0.7rem; font-weight:700; color:#f59e0b; background:rgba(0,0,0,0.3); padding:3px 6px; border-radius:4px;">Status: Pending</span>
+                        </div>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:10px;">${bug.desc}</p>
+                `;
+
+                if (bug.image) {
+                    html += `
+                        <div style="margin-bottom: 10px;">
+                            <a href="${bug.image}" target="_blank">
+                                <img src="${bug.image}" alt="Bug Screenshot" style="max-width: 100%; max-height: 160px; border-radius: 6px; border: 1px solid var(--border-glass);">
+                            </a>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                            <button class="action-btn-sm ${hasVoted ? 'btn-approve' : ''}" style="background:${hasVoted ? '#10b981' : 'rgba(255,255,255,0.1)'}; color:#fff;" onclick="voteBugOnce(${bug.id})" ${hasVoted ? 'disabled' : ''}>
+                                <i class="fa-solid fa-thumbs-up"></i> ${hasVoted ? 'Voted (' + voteCount + ')' : 'Vote (' + voteCount + ')'}
+                            </button>
+                            ${isUserDeveloper ? `<button class="action-btn-sm btn-approve" onclick="acceptAndTransferBug(${bug.id})"><i class="fa-solid fa-circle-check"></i> Accept Report</button>` : ''}
+                        </div>
+
+                        <div style="border-top:1px solid var(--border-glass); padding-top:8px; margin-top:8px;">
+                            <h6 style="color:var(--text-muted); font-size:0.8rem; margin-bottom:6px;">Comments:</h6>
+                            <div style="display:flex; flex-direction:column; gap:4px; margin-bottom:8px;">
+                `;
+
+                if (!bug.comments || bug.comments.length === 0) {
+                    html += `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic;">No comments yet.</span>`;
+                } else {
+                    bug.comments.forEach(c => {
+                        html += `<div style="background:rgba(0,0,0,0.2); padding:5px 8px; border-radius:4px; font-size:0.8rem;"><strong class="rainbow-title">${c.author}:</strong> ${c.text} <span style="font-size:0.65rem; color:var(--text-muted); float:right;">${c.date}</span></div>`;
+                    });
+                }
+
+                html += `
+                            </div>
+                            <form onsubmit="submitBugComment(event, ${bug.id})" style="display:flex; gap:6px;">
+                                <input type="text" id="comment-input-${bug.id}" class="form-control no-icon" style="padding:6px 10px; font-size:0.8rem;" required placeholder="Add a comment...">
+                                <button type="submit" class="action-btn-sm" style="background:#2563eb; color:#fff; white-space:nowrap;">Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderReviewedBugs() {
+            const container = document.getElementById('reviewed-bugs-container');
+            if (!container) return;
+
+            const reviewedBugs = (db.bugReports || []).filter(b => b.status === 'Accepted');
+            if (reviewedBugs.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-muted); font-size:0.85rem;">No reviewed/accepted bug reports yet.</p>`;
+                return;
+            }
+
+            let html = '';
+            reviewedBugs.forEach(bug => {
+                const voteCount = bug.votesUp ? bug.votesUp.length : 0;
+                const devName = bug.acceptedBy || 'Developer';
+
+                html += `
+                    <div style="background: rgba(16, 185, 129, 0.02); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 10px; padding: 14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                            <div>
+                                <h5 style="color:#fff; font-size:0.95rem; margin-bottom:2px;">${bug.title}</h5>
+                                <span style="font-size:0.7rem; color:var(--text-muted);">Reported by: <strong class="rainbow-title">${bug.author}</strong> at ${bug.date}</span>
+                            </div>
+                            <span style="font-size:0.7rem; font-weight:700; color:#10b981; background:rgba(16, 185, 129, 0.15); padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px;">
+                                <i class="fa-solid fa-circle-check"></i> Accepted by ${devName}
+                            </span>
+                        </div>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:10px;">${bug.desc}</p>
+                `;
+
+                if (bug.image) {
+                    html += `
+                        <div style="margin-bottom: 10px;">
+                            <a href="${bug.image}" target="_blank">
+                                <img src="${bug.image}" alt="Bug Screenshot" style="max-width: 100%; max-height: 160px; border-radius: 6px; border: 1px solid var(--border-glass);">
+                            </a>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        <div style="display:flex; align-items:center; gap:12px; font-size:0.75rem; color:var(--text-muted); border-top:1px solid var(--border-glass); padding-top:8px;">
+                            <span><i class="fa-solid fa-thumbs-up"></i> Final Votes: ${voteCount}</span>
+                            <span><i class="fa-solid fa-comments"></i> Comments locked (${bug.comments ? bug.comments.length : 0})</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function acceptAndTransferBug(bugId) {
+            if (!isUserDeveloper) {
+                alert('Only developers can accept and transfer bug reports!');
+                return;
+            }
+            const bug = db.bugReports.find(b => b.id === bugId);
+            if (!bug) return;
+
+            bug.status = 'Accepted';
+            bug.acceptedBy = currentLoggedInUser || 'Developer';
+            saveDB();
+
+            renderPublicBugs();
+            renderReviewedBugs();
+            if (typeof switchDevTab === 'function') switchDevTab('bugs');
+            alert('Bug report accepted and transferred successfully!');
+        }
+
+        function wipeReviewedBugsFromModal() {
+            if (!isUserDeveloper) {
+                alert('Only developers can wipe reviewed bug reports!');
+                return;
+            }
+            if (confirm('Are you sure you want to wipe all bugs from Bug Reviewed?')) {
+                db.bugReports = db.bugReports.filter(b => b.status !== 'Accepted');
+                saveDB();
+                renderReviewedBugs();
+                if (typeof switchDevTab === 'function') switchDevTab('bugs');
+            }
+        }
+
+        function submitContactUsForm(e) {
+            e.preventDefault();
+
+            if (!db.contactCooldowns) db.contactCooldowns = {};
+            const clientIdentifier = currentLoggedInUser || document.getElementById('contact-email').value.trim();
+            const lastTime = db.contactCooldowns[clientIdentifier] || 0;
+            const now = Date.now();
+            const elapsed = now - lastTime;
+
+            if (elapsed < COOLDOWN_DURATION_MS) {
+                const remainingMinutes = Math.ceil((COOLDOWN_DURATION_MS - elapsed) / (60 * 1000));
+                document.getElementById('contact-cooldown-notice').innerText = `Cooldown active! Please wait ${remainingMinutes} minute(s) before submitting another contact inquiry.`;
+                return;
+            }
+
+            const email = document.getElementById('contact-email').value.trim();
+            const accounts = document.getElementById('contact-accounts').value.trim();
+            const desc = document.getElementById('contact-desc').value.trim();
+
+            if (!db.contactInquiries) db.contactInquiries = [];
+            db.contactInquiries.push({
+                id: Date.now(),
+                email,
+                accounts,
+                desc,
+                status: 'Pending',
+                date: new Date().toLocaleString()
+            });
+
+            db.contactCooldowns[clientIdentifier] = now;
+            saveDB();
+            document.getElementById('contact-cooldown-notice').innerText = '';
+            alert('SUCCESSFUL! Your contact request has been successfully submitted.');
+            e.target.reset();
+            closeModal('contact-modal');
+        }
+
+        function renderDeveloperPanel() {
+            const content = document.getElementById('admin-tab-content');
+            let html = `
+                <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button class="action-btn-sm" style="background:#2563eb; color:#fff;" onclick="switchDevTab('contacts')">Contact Us (<span id="contact-count">${db.contactInquiries ? db.contactInquiries.length : 0}</span>)</button>
+                    <button class="action-btn-sm" style="background:var(--accent-red); color:#fff;" onclick="switchDevTab('bugs')">Bug Management</button>
+                    <button class="action-btn-sm" style="background:var(--accent-purple); color:#fff;" onclick="switchDevTab('users')">Users & Passwords</button>
+                    <button class="action-btn-sm" style="background:#ef4444; color:#fff;" onclick="switchDevTab('bans')">Ban / Kick Members</button>
+                </div>
+                <div id="dev-sub-content"></div>
+            `;
+            content.innerHTML = html;
+            switchDevTab('contacts');
+        }
+
+        function switchDevTab(tab) {
+            const subContainer = document.getElementById('dev-sub-content');
+            if (!subContainer) return;
+
+            if (tab === 'contacts') {
+                let html = `<h4 class="rainbow-title" style="margin-bottom:8px; font-size:1rem;">Contact Us Requests</h4>`;
+                if (!db.contactInquiries || db.contactInquiries.length === 0) {
+                    html += `<p style="color:var(--text-muted); font-size:0.85rem;">No contact requests.</p>`;
+                } else {
+                    html += `<table class="admin-table"><tr><th>Email</th><th>Account Names</th><th>Description</th><th>Status</th><th>Action</th></tr>`;
+                    db.contactInquiries.forEach((item, idx) => {
+                        html += `<tr>
+                            <td><a href="mailto:${item.email}" style="color:var(--accent-cyan);">${item.email}</a></td>
+                            <td><code class="rainbow-title" style="font-weight:700;">${item.accounts}</code></td>
+                            <td>${item.desc}</td>
+                            <td><span style="color: ${item.status === 'Accepted' ? '#10b981' : '#f59e0b'}; font-weight:700;">${item.status}</span></td>
+                            <td>
+                                ${item.status !== 'Accepted' ? `<button class="action-btn-sm btn-approve" onclick="acceptContactInquiry(${idx})">Accept</button>` : `<span style="color:#10b981; font-size:0.75rem;"><i class="fa-solid fa-check"></i> Handled</span>`}
+                            </td>
+                        </tr>`;
+                    });
+                    html += `</table>`;
+                }
+                subContainer.innerHTML = html;
+            } else if (tab === 'bugs') {
+                let html = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <h4 class="rainbow-title" style="margin:0; font-size:1rem;">Bug Management & Review</h4>
+                        <button class="action-btn-sm btn-reject" onclick="wipeReviewedBugs()"><i class="fa-solid fa-trash"></i> Wipe Reviewed Bugs</button>
+                    </div>
+                `;
+                if (!db.bugReports || db.bugReports.length === 0) {
+                    html += `<p style="color:var(--text-muted); font-size:0.85rem;">No bugs logged.</p>`;
+                } else {
+                    html += `<table class="admin-table"><tr><th>Author</th><th>Title & Image</th><th>Status</th><th>Actions</th></tr>`;
+                    db.bugReports.forEach((bug, bIdx) => {
+                        html += `<tr>
+                            <td><strong class="rainbow-title">${bug.author}</strong></td>
+                            <td>
+                                <div>${bug.title}</div>
+                                ${bug.image ? `<div style="margin-top:4px;"><a href="${bug.image}" target="_blank"><img src="${bug.image}" alt="Bug" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border-glass);"></a></div>` : ''}
+                            </td>
+                            <td><span style="color: ${bug.status === 'Accepted' ? '#10b981' : '#f59e0b'}; font-weight:700;">${bug.status}</span></td>
+                            <td>
+                                <div style="display:flex; gap:4px;">
+                                    ${bug.status !== 'Accepted' ? `<button class="action-btn-sm btn-approve" onclick="acceptAndTransferBug(${bug.id})">Accept</button>` : `<span style="color:#10b981; font-weight:700; font-size:0.75rem;">Reviewed</span>`}
+                                    <button class="action-btn-sm btn-reject" onclick="deleteBugReport(${bIdx})">Delete</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                    html += `</table>`;
+                }
+                subContainer.innerHTML = html;
+            } else if (tab === 'users') {
+                let html = `<h4 class="rainbow-title" style="margin-bottom:8px; font-size:1rem;">User Database & Profile Management</h4>`;
+                if (!db.usersLog || db.usersLog.length === 0) {
+                    html += `<p style="color:var(--text-muted); font-size:0.85rem;">No registered accounts.</p>`;
+                } else {
+                    html += `<table class="admin-table"><tr><th>Username</th><th>Password</th><th>New User</th><th>New Pass</th><th>Action</th></tr>`;
+                    db.usersLog.forEach((u, uIdx) => {
+                        html += `<tr>
+                            <td><strong class="rainbow-title">${u.username}</strong></td>
+                            <td><code style="color:#ff2a5f;">${u.password}</code></td>
+                            <td>
+                                <input type="text" id="new-user-${uIdx}" class="form-control no-icon" style="padding:4px 8px; font-size:0.75rem; max-width:110px;" maxlength="12" placeholder="New user...">
+                            </td>
+                            <td>
+                                <input type="text" id="new-pass-${uIdx}" class="form-control no-icon" style="padding:4px 8px; font-size:0.75rem; max-width:110px;" placeholder="New pass...">
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                    <button class="action-btn-sm btn-approve" onclick="devSaveUserChanges(${uIdx})">Save</button>
+                                    <button class="action-btn-sm btn-reject" onclick="devDeleteAccountPermanently(${uIdx})">Delete Permanently</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    });
+                    html += `</table>`;
+                }
+                subContainer.innerHTML = html;
+            } else if (tab === 'bans') {
+                let html = `<h4 class="rainbow-title" style="margin-bottom:8px; font-size:1rem;">Ban / Kick Members</h4>`;
+                html += `
+                    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                        <input type="text" id="target-member" class="form-control" placeholder="Username..." style="max-width:250px;" />
+                        <button class="action-btn-sm btn-reject" onclick="banMemberInput()">Ban User</button>
+                    </div>
+                `;
+                html += `<h5 style="color:var(--text-muted); margin-bottom:6px; font-size:0.85rem;">Banned Users:</h5>`;
+                if (!db.bans || db.bans.length === 0) {
+                    html += `<p style="color:var(--text-muted); font-size:0.85rem;">No banned users.</p>`;
+                } else {
+                    html += `<table class="admin-table"><tr><th>Username</th><th>Action</th></tr>`;
+                    db.bans.forEach((bUser, bIdx) => {
+                        html += `<tr><td>${bUser}</td><td><button class="action-btn-sm btn-approve" onclick="unbanMember(${bIdx})">Unban</button></td></tr>`;
+                    });
+                    html += `</table>`;
+                }
+                subContainer.innerHTML = html;
+            }
+        }
+
+        // Funcție nouă pentru ștergerea definitivă a contului din Developer Panel
+        function devDeleteAccountPermanently(uIdx) {
+            const userObj = db.usersLog[uIdx];
+            if (!userObj) return;
+
+            if (confirm(`Are you sure you want to permanently delete account "${userObj.username}"? This action cannot be undone.`)) {
+                const targetUsername = userObj.username.toLowerCase();
+                
+                // Ștergem contul din lista principală
+                db.usersLog.splice(uIdx, 1);
+
+                // Eliberăm slotul și din lista de dispozitive asociate (pentru a putea face alt cont nou)
+                if (db.deviceAccounts) {
+                    for (let devId in db.deviceAccounts) {
+                        db.deviceAccounts[devId] = db.deviceAccounts[devId].filter(acc => acc !== targetUsername);
+                    }
+                }
+
+                saveDB();
+                alert(`Account "${userObj.username}" has been permanently deleted.`);
+                switchDevTab('users');
+            }
+        }
+
+        function acceptContactInquiry(idx) {
+            if (db.contactInquiries[idx]) {
+                db.contactInquiries[idx].status = 'Accepted';
+                saveDB();
+                switchDevTab('contacts');
+            }
+        }
+
+        function deleteBugReport(bIdx) {
+            if (db.bugReports[bIdx]) {
+                db.bugReports.splice(bIdx, 1);
+                saveDB();
+                switchDevTab('bugs');
+                renderPublicBugs();
+                renderReviewedBugs();
+            }
+        }
+
+        function wipeReviewedBugs() {
+            if (confirm('Are you sure you want to wipe/delete all accepted/reviewed bug reports?')) {
+                db.bugReports = db.bugReports.filter(b => b.status !== 'Accepted');
+                saveDB();
+                switchDevTab('bugs');
+                renderPublicBugs();
+                renderReviewedBugs();
+            }
+        }
+
+        function devSaveUserChanges(uIdx) {
+            const userObj = db.usersLog[uIdx];
+            if (!userObj) return;
+
+            const oldUsername = userObj.username;
+            const newUserField = document.getElementById(`new-user-${uIdx}`);
+            const newPassField = document.getElementById(`new-pass-${uIdx}`);
+            
+            const newUsername = newUserField ? newUserField.value.trim() : '';
+            const newPassword = newPassField ? newPassField.value : '';
+
+            if (newUsername && newUsername !== oldUsername) {
+                if (newUsername.length > 12) {
+                    alert('Username must be maximum 12 characters long!');
+                    return;
+                }
+
+                const nameExists = db.usersLog.some((u, idx) => idx !== uIdx && u.username.toLowerCase() === newUsername.toLowerCase());
+                if (nameExists) {
+                    alert('Another user with this username already exists!');
+                    return;
+                }
+
+                userObj.username = newUsername;
+
+                if (db.bugReports) {
+                    db.bugReports.forEach(bug => {
+                        if (bug.author === oldUsername) bug.author = newUsername;
+                        if (bug.acceptedBy === oldUsername) bug.acceptedBy = newUsername;
+                        if (bug.votesUp) {
+                            bug.votesUp = bug.votesUp.map(v => v === oldUsername ? newUsername : v);
+                        }
+                        if (bug.comments) {
+                            bug.comments.forEach(c => {
+                                if (c.author === oldUsername) c.author = newUsername;
+                            });
+                        }
+                    });
+                }
+
+                if (db.bugCooldowns && db.bugCooldowns[oldUsername]) {
+                    db.bugCooldowns[newUsername] = db.bugCooldowns[oldUsername];
+                    delete db.bugCooldowns[oldUsername];
+                }
+
+                if (db.contactInquiries) {
+                    db.contactInquiries.forEach(item => {
+                        if (item.accounts === oldUsername) item.accounts = newUsername;
+                    });
+                }
+
+                if (db.bans) {
+                    db.bans = db.bans.map(b => b === oldUsername.toLowerCase() ? newUsername.toLowerCase() : b);
+                }
+            }
+
+            if (newPassword) {
+                userObj.password = newPassword;
+            }
+
+            saveDB();
+            alert(`Changes for user ${userObj.username} saved successfully!`);
+            switchDevTab('users');
+            renderPublicBugs();
+            renderReviewedBugs();
+        }
+
+        function banMemberInput() {
+            const val = document.getElementById('target-member').value.trim().toLowerCase();
+            if (!val) return;
+            
+            if (db.developers.includes(val)) {
+                alert('Error: You cannot ban another developer!');
+                return;
+            }
+
+            if (!db.bans.includes(val)) {
+                db.bans.push(val);
+                saveDB();
+                alert(`User ${val} has been banned.`);
+                document.getElementById('target-member').value = '';
+                switchDevTab('bans');
+            }
+        }
+
+        function unbanMember(bIdx) {
+            db.bans.splice(bIdx, 1);
+            saveDB();
+            switchDevTab('bans');
+        }
+
+        function logoutSession() {
+            // Ștergem datele de sesiune pentru a forța reintroducerea datelor la deconectare
+            localStorage.removeItem('echo_active_user');
+            localStorage.removeItem('echo_active_pass');
+            localStorage.removeItem('echo_login_time');
+            location.reload();
+        }
+    </script>
+</body>
+</html>
+
