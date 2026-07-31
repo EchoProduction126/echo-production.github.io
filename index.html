@@ -98,7 +98,8 @@
             max-width: 420px;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
             position: relative;
-            animation: rainbowBorder 6s infinite linear;
+            /* Modificat la 9 secunde aici */
+            animation: rainbowBorder 9s infinite linear;
             will-change: border-color;
         }
 
@@ -396,7 +397,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 15px;
-            animation: rainbowBorder 8s infinite linear;
+            /* Modificat la 9 secunde aici */
+            animation: rainbowBorder 9s infinite linear;
         }
         .contact-spotlight-card {
             border-color: rgba(0, 223, 216, 0.4);
@@ -472,11 +474,13 @@
             border-radius: 20px;
             width: 100%;
             max-width: 800px;
-            max-height: 85vh;
+            max-height: 90vh; /* Ajustat pentru a lăsa loc mai bun pe telefon */
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Asigură scroll fluid pe iOS/Android */
             padding: 30px;
             position: relative;
-            animation: rainbowBorder 6s infinite linear;
+            /* Modificat la 9 secunde aici */
+            animation: rainbowBorder 9s infinite linear;
         }
 
         .modal-close-btn {
@@ -564,7 +568,8 @@
             border-radius: 12px;
             padding: 14px 18px;
             cursor: pointer;
-            animation: rainbowBorder 6s infinite linear;
+            /* Modificat la 9 secunde aici */
+            animation: rainbowBorder 9s infinite linear;
         }
         .rainbow-file-upload input[type="file"] {
             position: absolute;
@@ -892,9 +897,7 @@
                 });
             }
 
-            // Verificare sesiune 3 zile (Auto-login)
             checkActiveSession();
-
             renderPublicBugs();
             renderReviewedBugs();
         });
@@ -907,10 +910,8 @@
             if (savedUser && savedPass && loginTimestamp) {
                 const now = Date.now();
                 if (now - parseInt(loginTimestamp) < THREE_DAYS_MS) {
-                    // Sesiunea este validă (sub 3 zile), intrăm automat
                     enterWebsite(savedUser, savedPass, true);
                 } else {
-                    // Expirat după 3 zile
                     localStorage.removeItem('echo_active_user');
                     localStorage.removeItem('echo_active_pass');
                     localStorage.removeItem('echo_login_time');
@@ -960,7 +961,6 @@
                 return;
             }
 
-            // Limitare maximum 2 conturi per dispozitiv
             let deviceId = localStorage.getItem('echo_device_identifier');
             if (!deviceId) {
                 deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -1016,7 +1016,6 @@
             currentLoggedInUser = username;
             isUserDeveloper = db.developers.includes(username.toLowerCase()) || pass === db.devPassword;
 
-            // Salvăm sesiunea pe 3 zile
             localStorage.setItem('echo_active_user', username);
             localStorage.setItem('echo_active_pass', pass);
             if (!isAutoLogin || !localStorage.getItem('echo_login_time')) {
@@ -1504,18 +1503,14 @@
             }
         }
 
-        // Funcție nouă pentru ștergerea definitivă a contului din Developer Panel
         function devDeleteAccountPermanently(uIdx) {
             const userObj = db.usersLog[uIdx];
             if (!userObj) return;
 
             if (confirm(`Are you sure you want to permanently delete account "${userObj.username}"? This action cannot be undone.`)) {
                 const targetUsername = userObj.username.toLowerCase();
-                
-                // Ștergem contul din lista principală
                 db.usersLog.splice(uIdx, 1);
 
-                // Eliberăm slotul și din lista de dispozitive asociate (pentru a putea face alt cont nou)
                 if (db.deviceAccounts) {
                     for (let devId in db.deviceAccounts) {
                         db.deviceAccounts[devId] = db.deviceAccounts[devId].filter(acc => acc !== targetUsername);
@@ -1648,7 +1643,6 @@
         }
 
         function logoutSession() {
-            // Ștergem datele de sesiune pentru a forța reintroducerea datelor la deconectare
             localStorage.removeItem('echo_active_user');
             localStorage.removeItem('echo_active_pass');
             localStorage.removeItem('echo_login_time');
@@ -1657,4 +1651,3 @@
     </script>
 </body>
 </html>
-
