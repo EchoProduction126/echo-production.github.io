@@ -518,6 +518,7 @@
         }
         .btn-approve { background: #10b981; color: white; }
         .btn-reject { background: #ef4444; color: white; }
+        .btn-view-image { background: #2563eb; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
 
         .dev-badge-icon {
             display: inline-flex;
@@ -878,7 +879,7 @@
                 return true;
             } catch (e) {
                 console.error("Storage quota exceeded:", e);
-                alert("Storage limit exceeded! The uploaded image is too large even after compression. Please try a smaller image.");
+                alert("Storage limit exceeded! Please try a smaller image file.");
                 return false;
             }
         }
@@ -1101,38 +1102,6 @@
             }
         }
 
-        function compressImage(file, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    const MAX_DIMENSION = 800;
-                    if (width > height && width > MAX_DIMENSION) {
-                        height = Math.round((height * MAX_DIMENSION) / width);
-                        width = MAX_DIMENSION;
-                    } else if (height > MAX_DIMENSION) {
-                        width = Math.round((width * MAX_DIMENSION) / height);
-                        height = MAX_DIMENSION;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Compress to JPEG with 0.7 quality to keep storage footprints low
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    callback(dataUrl);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
         function submitNewBugReport(e) {
             e.preventDefault();
             if (!currentLoggedInUser) {
@@ -1161,9 +1130,15 @@
                     alert('File size exceeds the 2 MB limit.');
                     return;
                 }
-                compressImage(file, function(compressedDataUrl) {
-                    saveBugWithImage(title, desc, compressedDataUrl);
-                });
+
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    saveBugWithImage(title, desc, uploadEvent.target.result);
+                };
+                reader.onerror = function() {
+                    alert('Error reading file. Please try another image.');
+                };
+                reader.readAsDataURL(file);
             } else {
                 saveBugWithImage(title, desc, null);
             }
@@ -1186,7 +1161,7 @@
 
             db.bugCooldowns[currentLoggedInUser] = Date.now();
             
-            if (!saveDB()) return; // Abort if storage quota throws an error
+            if (!saveDB()) return;
 
             document.getElementById('bug-cooldown-notice').innerText = '';
             alert('Bug report submitted successfully!');
@@ -1269,8 +1244,8 @@
                 if (bug.image) {
                     html += `
                         <div style="margin-bottom: 10px;">
-                            <a href="${bug.image}" target="_blank">
-                                <img src="${bug.image}" alt="Bug Screenshot" style="max-width: 100%; max-height: 160px; border-radius: 6px; border: 1px solid var(--border-glass);">
+                            <a href="${bug.image}" target="_blank" class="action-btn-sm btn-view-image">
+                                <i class="fa-solid fa-image"></i> View Image
                             </a>
                         </div>
                     `;
@@ -1342,8 +1317,8 @@
                 if (bug.image) {
                     html += `
                         <div style="margin-bottom: 10px;">
-                            <a href="${bug.image}" target="_blank">
-                                <img src="${bug.image}" alt="Bug Screenshot" style="max-width: 100%; max-height: 160px; border-radius: 6px; border: 1px solid var(--border-glass);">
+                            <a href="${bug.image}" target="_blank" class="action-btn-sm btn-view-image">
+                                <i class="fa-solid fa-image"></i> View Image
                             </a>
                         </div>
                     `;
@@ -1477,13 +1452,13 @@
                 if (!db.bugReports || db.bugReports.length === 0) {
                     html += `<p style="color:var(--text-muted); font-size:0.85rem;">No bugs logged.</p>`;
                 } else {
-                    html += `<table class="admin-table"><tr><th>Author</th><th>Title & Image</th><th>Status</th><th>Actions</th></tr>`;
+                    html += `<table class="admin-table"><tr><th>Author</th><th>Title & Image Attachment</th><th>Status</th><th>Actions</th></tr>`;
                     db.bugReports.forEach((bug, bIdx) => {
                         html += `<tr>
                             <td><strong class="rainbow-title">${bug.author}</strong></td>
                             <td>
                                 <div>${bug.title}</div>
-                                ${bug.image ? `<div style="margin-top:4px;"><a href="${bug.image}" target="_blank"><img src="${bug.image}" alt="Bug" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid var(--border-glass);"></a></div>` : ''}
+                                ${bug.image ? `<div style="margin-top:4px;"><a href="${bug.image}" target="_blank" class="action-btn-sm btn-view-image"><i class="fa-solid fa-image"></i> View Image</a></div>` : '<span style="color:var(--text-muted); font-size:0.75rem;">No image</span>'}
                             </td>
                             <td><span style="color: ${bug.status === 'Accepted' ? '#10b981' : '#f59e0b'}; font-weight:700;">${bug.status}</span></td>
                             <td>
@@ -1694,6 +1669,7 @@
     </script>
 </body>
 </html>
+
 
 
 
