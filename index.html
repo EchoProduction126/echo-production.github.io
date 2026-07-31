@@ -99,7 +99,6 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
             position: relative;
             animation: rainbowBorder 9s infinite linear;
-            will-change: border-color;
         }
 
         .gateway-logo {
@@ -782,7 +781,7 @@
                     <textarea id="new-bug-desc" class="form-control no-icon" rows="3" required placeholder="Describe how to reproduce the bug..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Attach Image (Screenshot, Max 2MB)</label>
+                    <label>Attach Image (Screenshot, Max 5MB)</label>
                     <div class="rainbow-file-upload" onclick="document.getElementById('new-bug-image').click()">
                         <input type="file" id="new-bug-image" accept="image/*" onchange="updateRainbowFileName(this)">
                         <div class="rainbow-file-content">
@@ -791,7 +790,7 @@
                             </div>
                             <div class="rainbow-file-text-wrap">
                                 <div class="rainbow-file-text" id="rainbow-file-label">Choose image file...</div>
-                                <div class="rainbow-file-subtext">PNG, JPG, WEBP up to 2MB</div>
+                                <div class="rainbow-file-subtext">PNG, JPG, WEBP up to 5MB</div>
                             </div>
                             <div class="rainbow-file-action-badge">Browse</div>
                         </div>
@@ -879,14 +878,14 @@
                 return true;
             } catch (e) {
                 console.error("Storage quota exceeded:", e);
-                alert("Storage limit exceeded! Please try a smaller image file.");
+                alert("Storage limit exceeded! The attached image file is too large for browser local memory. Please choose a smaller image or compress it.");
                 return false;
             }
         }
 
         const COOLDOWN_DURATION_MS = 60 * 60 * 1000;
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB Limit
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB Limit
 
         document.addEventListener('DOMContentLoaded', () => {
             const robotContainer = document.getElementById('robot-container');
@@ -1091,7 +1090,7 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 if (file.size > MAX_FILE_SIZE) {
-                    alert('File size exceeds the 2 MB limit. Please select a smaller image.');
+                    alert('File size exceeds the 5 MB limit! Please choose a smaller image file.');
                     input.value = '';
                     label.textContent = 'Choose image file...';
                     return;
@@ -1127,18 +1126,17 @@
             if (imageInput.files && imageInput.files[0]) {
                 const file = imageInput.files[0];
                 if (file.size > MAX_FILE_SIZE) {
-                    alert('File size exceeds the 2 MB limit.');
+                    alert('File size exceeds the 5 MB limit!');
                     return;
                 }
 
-                const reader = new FileReader();
-                reader.onload = function(uploadEvent) {
-                    saveBugWithImage(title, desc, uploadEvent.target.result);
-                };
-                reader.onerror = function() {
-                    alert('Error reading file. Please try another image.');
-                };
-                reader.readAsDataURL(file);
+                try {
+                    const objectUrl = URL.createObjectURL(file);
+                    saveBugWithImage(title, desc, objectUrl);
+                } catch (err) {
+                    console.error("Error creating object URL for image:", err);
+                    alert("Failed to process the selected image. Please try another file.");
+                }
             } else {
                 saveBugWithImage(title, desc, null);
             }
@@ -1669,6 +1667,7 @@
     </script>
 </body>
 </html>
+
 
 
 
