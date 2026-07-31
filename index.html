@@ -781,7 +781,7 @@
                     <textarea id="new-bug-desc" class="form-control no-icon" rows="3" required placeholder="Describe how to reproduce the bug..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Attach Image (Screenshot)</label>
+                    <label>Attach Image (Screenshot, Max 2MB)</label>
                     <div class="rainbow-file-upload" onclick="document.getElementById('new-bug-image').click()">
                         <input type="file" id="new-bug-image" accept="image/*" onchange="updateRainbowFileName(this)">
                         <div class="rainbow-file-content">
@@ -790,7 +790,7 @@
                             </div>
                             <div class="rainbow-file-text-wrap">
                                 <div class="rainbow-file-text" id="rainbow-file-label">Choose image file...</div>
-                                <div class="rainbow-file-subtext">PNG, JPG, WEBP up to 10MB</div>
+                                <div class="rainbow-file-subtext">PNG, JPG, WEBP up to 2MB</div>
                             </div>
                             <div class="rainbow-file-action-badge">Browse</div>
                         </div>
@@ -873,11 +873,19 @@
         };
 
         function saveDB() {
-            localStorage.setItem('echo_studio_db_v26', JSON.stringify(db));
+            try {
+                localStorage.setItem('echo_studio_db_v26', JSON.stringify(db));
+                return true;
+            } catch (e) {
+                console.error("Storage quota exceeded:", e);
+                alert("Storage limit exceeded! The uploaded image is too large even after compression. Please try a smaller image.");
+                return false;
+            }
         }
 
         const COOLDOWN_DURATION_MS = 60 * 60 * 1000;
         const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB Limit
 
         document.addEventListener('DOMContentLoaded', () => {
             const robotContainer = document.getElementById('robot-container');
@@ -968,7 +976,7 @@
 
             db.usersLog.push({ username: user, password: pass, date: new Date().toLocaleString() });
             db.deviceAccounts[deviceId].push(user.toLowerCase());
-            saveDB();
+            if (!saveDB()) return;
 
             alert('Account successfully created! Logging you in automatically...');
             enterWebsite(user, pass, false);
@@ -1080,10 +1088,49 @@
         function updateRainbowFileName(input) {
             const label = document.getElementById('rainbow-file-label');
             if (input.files && input.files[0]) {
-                label.textContent = input.files[0].name;
+                const file = input.files[0];
+                if (file.size > MAX_FILE_SIZE) {
+                    alert('File size exceeds the 2 MB limit. Please select a smaller image.');
+                    input.value = '';
+                    label.textContent = 'Choose image file...';
+                    return;
+                }
+                label.textContent = file.name;
             } else {
                 label.textContent = 'Choose image file...';
             }
+        }
+
+        function compressImage(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    const MAX_DIMENSION = 800;
+                    if (width > height && width > MAX_DIMENSION) {
+                        height = Math.round((height * MAX_DIMENSION) / width);
+                        width = MAX_DIMENSION;
+                    } else if (height > MAX_DIMENSION) {
+                        width = Math.round((width * MAX_DIMENSION) / height);
+                        height = MAX_DIMENSION;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress to JPEG with 0.7 quality to keep storage footprints low
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(dataUrl);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function submitNewBugReport(e) {
@@ -1109,11 +1156,14 @@
             const imageInput = document.getElementById('new-bug-image');
 
             if (imageInput.files && imageInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(uploadEvent) {
-                    saveBugWithImage(title, desc, uploadEvent.target.result);
-                };
-                reader.readAsDataURL(imageInput.files[0]);
+                const file = imageInput.files[0];
+                if (file.size > MAX_FILE_SIZE) {
+                    alert('File size exceeds the 2 MB limit.');
+                    return;
+                }
+                compressImage(file, function(compressedDataUrl) {
+                    saveBugWithImage(title, desc, compressedDataUrl);
+                });
             } else {
                 saveBugWithImage(title, desc, null);
             }
@@ -1135,7 +1185,9 @@
             });
 
             db.bugCooldowns[currentLoggedInUser] = Date.now();
-            saveDB();
+            
+            if (!saveDB()) return; // Abort if storage quota throws an error
+
             document.getElementById('bug-cooldown-notice').innerText = '';
             alert('Bug report submitted successfully!');
             document.getElementById('bug-report-form').reset();
@@ -1642,5 +1694,6 @@
     </script>
 </body>
 </html>
+
 
 
